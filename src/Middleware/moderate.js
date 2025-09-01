@@ -14,7 +14,7 @@ export async function moderationMiddleware(req, res, next) {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); 
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         const result = await model.generateContent([
             "Analyze if this content is appropriate and respond with either 'SAFE' or 'UNSAFE': " + content
@@ -25,8 +25,9 @@ export async function moderationMiddleware(req, res, next) {
 
         if (text.includes('unsafe')) {
             return res.status(403).json({
-                error: "Content flagged as inappropriate",
-                details: text
+                status:false,
+                message: "Content flagged as inappropriate",
+                data: null
             });
         }
 
