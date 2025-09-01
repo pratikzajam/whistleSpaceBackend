@@ -26,7 +26,7 @@ export async function moderationMiddleware(req, res, next) {
         if (text.includes('unsafe')) {
             return res.status(403).json({
                 status:false,
-                message: "Content flagged as inappropriate",
+                messages: "Content flagged as inappropriate",
                 data: null
             });
         }
