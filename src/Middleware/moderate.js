@@ -4,8 +4,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 export async function moderationMiddleware(req, res, next) {
     const content = req.body.content;
 
@@ -13,17 +11,22 @@ export async function moderationMiddleware(req, res, next) {
         return res.status(400).json({ error: "Content is required" });
     }
 
+    if (!process.env.GEMINI_API_KEY) {
+        return res.status(503).json({ error: 'Moderation service is not configured' });
+    }
+
     try {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
         const result = await model.generateContent([
-            "Analyze if this content is appropriate and respond with either 'SAFE' or 'UNSAFE': " + content
+            `Classify the text between <content> tags. Reply only SAFE or UNSAFE. <content>${content}</content>`
         ]);
 
         const response = await result.response;
-        const text = response.text().toLowerCase();
+        const text = response.text().trim().toUpperCase();
 
-        if (text.includes('unsafe')) {
+        if (text !== 'SAFE') {
             return res.status(403).json({
                 status:false,
                 messages: "Content flagged as inappropriate",
@@ -34,6 +37,6 @@ export async function moderationMiddleware(req, res, next) {
         next();
     } catch (err) {
         console.error('Moderation error:', err);
-        res.status(500).json({ error: "Moderation service error" });
+        res.status(503).json({ error: "Moderation service unavailable" });
     }
 }

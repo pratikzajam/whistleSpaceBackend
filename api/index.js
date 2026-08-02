@@ -1,36 +1,30 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import 'dotenv/config';
 import dbConnect from '../src/Config/dbConfig.js';
 import admin from '../src/Routes/admin.routes.js';
 import user from '../src/Routes/employee.routes.js';
-import dotenv from 'dotenv'
 
 const app = express();
 const port = 3000;
 
-dotenv.config();
-
-
-app.use(cors());
-
-
-app.use(express.json());
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map((origin) => origin.trim());
+app.use(helmet());
+app.use(cors({ origin: allowedOrigins, methods: ['GET', 'POST', 'DELETE'] }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: 'draft-8', legacyHeaders: false }));
+app.use(express.json({ limit: '20kb' }));
 
 
 app.use("/api/admin/", admin);
 app.use("/api/user/", user);
 
 
-dbConnect()
-  .then(() => {
-    console.log("Db Connected Successfully");
-  })
-  .catch(() => {
-    console.log("Something went wrong while connecting to the db");
-  });
+await dbConnect();
 
-// Start server
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(port, () => console.log(`API listening on port ${port}`));
+}
+
+export default app;
