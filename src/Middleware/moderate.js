@@ -14,7 +14,7 @@ export async function moderationMiddleware(req, res, next) {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
         const result = await model.generateContent([
             "Analyze if this content is appropriate and respond with either 'SAFE' or 'UNSAFE': " + content
