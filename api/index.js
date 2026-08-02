@@ -10,7 +10,7 @@ import user from '../src/Routes/employee.routes.js';
 const app = express();
 const port = 3000;
 
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map((origin) => origin.trim());
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173'||"https://whistle-space.vercel.app").split(',').map((origin) => origin.trim());
 app.use(helmet());
 app.use(cors({ origin: allowedOrigins, methods: ['GET', 'POST', 'DELETE'] }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: 'draft-8', legacyHeaders: false }));
