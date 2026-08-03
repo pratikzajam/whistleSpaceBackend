@@ -163,7 +163,7 @@ export async function improveReply(req, res) {
 
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({
-            model: "gemini-3.6-flash",
+            model: "gemini-2.5-flash",
         });
 
         const prompt = `
@@ -222,7 +222,7 @@ User Message:
 
         return res.status(500).json({
             status: false,
-            message: "Unable to generate reply suggestions",
+            message: "You Have hit rate limits of AI model, please try again after some time",
             data: null,
         });
     }
