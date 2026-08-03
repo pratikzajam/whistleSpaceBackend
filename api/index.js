@@ -18,11 +18,16 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const app = express();
 const port = 3000;
 
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://whistle-space.vercel.app').split(',').map((origin) => origin.trim());
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,https://whistle-space.vercel.app').split(',').map((origin) => origin.trim());
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+    if (
+      allowedOrigins.includes(origin) ||
+      /\.vercel\.app$/.test(origin) ||
+      /^http:\/\/localhost:\d+$/.test(origin)
+    ) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
