@@ -1,18 +1,21 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-dotenv.config();
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export async function moderationMiddleware(req, res, next) {
     const content = req.body.content;
 
     if (!content) {
-        return res.status(400).json({ error: "Content is required" });
+        return res.status(400).json({ status: false, message: "Content is required", data: null });
     }
 
     if (!process.env.GEMINI_API_KEY) {
-        return res.status(503).json({ error: 'Moderation service is not configured' });
+        return res.status(503).json({ status: false, message: 'Moderation service is not configured', data: null });
     }
 
     try {
@@ -28,8 +31,8 @@ export async function moderationMiddleware(req, res, next) {
 
         if (text !== 'SAFE') {
             return res.status(403).json({
-                status:false,
-                messages: "Content flagged as inappropriate",
+                status: false,
+                message: "Content flagged as inappropriate or unsafe",
                 data: null
             });
         }
@@ -37,6 +40,6 @@ export async function moderationMiddleware(req, res, next) {
         next();
     } catch (err) {
         console.error('Moderation error:', err);
-        res.status(503).json({ error: "Moderation service unavailable" });
+        res.status(503).json({ status: false, message: "Moderation service unavailable", data: null });
     }
 }

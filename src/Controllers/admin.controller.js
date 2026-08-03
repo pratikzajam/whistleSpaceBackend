@@ -16,7 +16,8 @@ export async function signup(req, res) {
         }
         const result = owasp.test(password);
         if (!result.strong) {
-            return res.status(400).json({ status: false, message: result.errors, data: null });
+            const errorMsg = Array.isArray(result.errors) ? result.errors.join('. ') : result.errors;
+            return res.status(400).json({ status: false, message: `Password is too weak: ${errorMsg}`, data: null });
         }
         const existing = await Admin.findOne({ $or: [{ email }, { orgName }] });
         if (existing) {
